@@ -75,5 +75,5 @@ async function updatePrepod(ctx) {
 
 app.listen(9000);
 app.on('error', err => {
-  log.error('server error', err)
+  console.error('server error', err)
 });
