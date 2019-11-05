@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLString } = require('graphql');
+const { GraphQLObjectType } = require('graphql');
 
 const addPrepod = require('./mutations/addPrepod');
 const updatePrepod = require('./mutations/updatePrepod');

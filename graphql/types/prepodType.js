@@ -1,6 +1,4 @@
-const graphql = require('graphql');
-
-const { GraphQLObjectType, GraphQLString } = graphql;
+const { GraphQLObjectType, GraphQLString } = require('graphql');
 
 const PrepodType = new GraphQLObjectType({
   name: 'Prepod',
@@ -13,4 +11,3 @@ const PrepodType = new GraphQLObjectType({
 });
 
 module.exports = PrepodType;
-
