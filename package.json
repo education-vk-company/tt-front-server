@@ -19,5 +19,8 @@
     "koa-mount": "^4.0.0",
     "koa-router": "^7.4.0",
     "mongoose": "^5.7.7"
+  },
+  "devDependencies": {
+    "pm2": "^4.1.2"
   }
 }
