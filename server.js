@@ -67,8 +67,7 @@ async function handleForm(ctx) {
   console.log('[handleForm body]', ctx.request.body);
   console.log('[handleForm files]', ctx.request.files);
 
-  const image = ctx.request.files.image;
-  const audio = ctx.request.files.audio;
+  const { image, audio } = ctx.request.files;
 
   const response = {
     status: 'ok',
