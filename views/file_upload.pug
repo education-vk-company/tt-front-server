@@ -1,0 +1,18 @@
+html
+   head
+      title File uploads
+   body
+      form(action = "/upload" method = "POST" enctype = "multipart/form-data")
+         div
+            input(type = "text" name = "name" placeholder = "Name")
+
+         div
+            p image
+            input(type = "file" name = "image")
+
+         div
+            p audio
+            input(type = "file" name = "audio")
+
+         div
+            input(type = "submit")
