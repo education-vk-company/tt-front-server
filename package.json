@@ -2,25 +2,26 @@
   "name": "tt-front-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "pm2-runtime start ecosystem.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy": "now"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@koa/cors": "^2.2.3",
-    "dotenv": "^6.2.0",
+    "@koa/cors": "^3.0.0",
+    "dotenv": "^8.2.0",
     "graphql": "^14.5.8",
     "koa": "^2.11.0",
     "koa-graphql": "^0.8.0",
     "koa-mount": "^4.0.0",
     "koa-router": "^7.4.0",
-    "mongoose": "^5.7.7"
+    "mongoose": "^5.7.9"
   },
   "devDependencies": {
+    "now": "^16.4.4",
     "pm2": "^4.1.2"
   }
 }
