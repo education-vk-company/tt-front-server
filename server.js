@@ -75,12 +75,12 @@ async function handleForm(ctx) {
     audio: false,
   };
 
-  if (image) {
+  if (image && image.size) {
     readAndWriteFile(image);
     response.image = true;
   }
 
-  if (audio) {
+  if (audio && audio.size) {
     readAndWriteFile(image);
     response.audio = true;
   }
