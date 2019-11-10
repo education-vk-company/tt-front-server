@@ -8,4 +8,3 @@ const PrepodSchema = new Schema({
 });
 
 module.exports = mongoose.model('Prepod', PrepodSchema);
-
