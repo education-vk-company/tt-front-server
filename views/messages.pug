@@ -1,0 +1,38 @@
+html
+
+head
+    title sse
+
+body
+
+    div
+
+        p messages go here
+
+        ul
+
+    script.
+
+        var sse = new EventSource('/messages');
+        console.log(sse.withCredentials);
+        console.log(sse.readyState);
+        console.log(sse.url);
+        var eventList = document.querySelector('ul');
+        sse.onopen = function() {
+            console.log("Connection to server opened.");
+        };
+        sse.onmessage = function(e) {
+            const newElement = document.createElement("li");
+            let html = ''
+            try {
+                const msg = JSON.parse(e.data)
+                html = `<p>${msg.author}</p><p>${msg.text}</p>`
+            } catch {
+                html = `<p>${e.data}</p>`
+            }
+            newElement.innerHTML = html
+            eventList.appendChild(newElement);
+        };
+        sse.onerror = function() {
+            console.log("EventSource failed.");
+        };

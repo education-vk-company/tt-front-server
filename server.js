@@ -8,9 +8,14 @@ const router = require('koa-router')();
 const cors = require('@koa/cors');
 const bodyParser = require('koa-body');
 const Pug = require('koa-pug');
+const PassThrough = require('stream').PassThrough;
 const schema = require('./graphql/schema');
+
+const Message = require('./models/message');
 const Prepod = require('./models/prepod');
+
 const initDB = require('./database');
+initDB();
 
 const readAndWriteFile = (file) => {
   const reader = fs.createReadStream(file.path);
@@ -19,8 +24,6 @@ const readAndWriteFile = (file) => {
   console.log('uploading %s -> %s', file.name, stream.path);
   return stream;
 }
-
-initDB();
 
 const app = new Koa();
 app.use(cors());
@@ -53,14 +56,66 @@ router.post('/upload', bodyParser({
   urlencoded: true
 }), handleForm);
 
+
+router.get("/messages/:id", findMessageById);
+router.get("/messages", getMessages);
+router.get("/messages-view", renderMessages);
+router.post("/add-message", postMessage);
+
 app.use(mount('/graphql', graphqlHTTP({
   schema: schema,
   graphiql: true,
 })));
 
+async function postMessage(ctx) {
+  try {
+    ctx.body = await new Message(ctx.request.body).save();
+  } catch (err) {
+    ctx.throw(422);
+  }
+}
+
+async function findMessageById(ctx) {
+  try {
+    const message = await Message.findById(ctx.params.id);
+    if (!message) {
+      ctx.throw(404);
+    }
+    ctx.body = message;
+  } catch (err) {
+    if (err.name === 'CastError' || err.name === 'NotFoundError') {
+      ctx.throw(404);
+    }
+    ctx.throw(500);
+  }
+}
+
+async function getMessages(ctx) {
+
+  ctx.req.setTimeout(Number.MAX_VALUE);
+  ctx.type = 'text/event-stream; charset=utf-8';
+  ctx.set('Cache-Control', 'no-cache');
+  ctx.set('Connection', 'keep-alive');
+  ctx.status = 200;
+  const stream = new PassThrough()
+  ctx.body = stream;
+
+  const mngStream = Message.find().stream()
+
+  mngStream.on('data', (doc) => {
+    stream.write(`data: ${JSON.stringify(doc)}\n\n`)
+    stream.write(`data: testtest\n\n`)
+    stream.write(`data: testtesttesttest\n\n`)
+  })
+}
+
 async function renderForm(ctx) {
   console.log('files');
   await ctx.render('file_upload');
+}
+
+async function renderMessages(ctx) {
+  await ctx.render('messages');
 }
 
 async function handleForm(ctx) {
@@ -95,11 +150,11 @@ async function getPrepods(ctx) {
 
 async function findPrepodById(ctx) {
   try {
-    const city = await Prepod.findById(ctx.params.id);
-    if (!city) {
+    const prepod = await Prepod.findById(ctx.params.id);
+    if (!prepod) {
       ctx.throw(404);
     }
-    ctx.body = city;
+    ctx.body = prepod;
   } catch (err) {
     if (err.name === 'CastError' || err.name === 'NotFoundError') {
       ctx.throw(404);
@@ -110,8 +165,7 @@ async function findPrepodById(ctx) {
 
 async function addPrepod(ctx) {
   try {
-    const city = await new Prepod(ctx.request.body).save();
-    ctx.body = city;
+    ctx.body = await new Prepod(ctx.request.body).save();
   } catch (err) {
     ctx.throw(422);
   }
@@ -119,14 +173,14 @@ async function addPrepod(ctx) {
 
 async function updatePrepod(ctx) {
   try {
-    const city = await Prepod.findByIdAndUpdate(
+    const prepod = await Prepod.findByIdAndUpdate(
       ctx.params.id,
       ctx.request.body
     );
-    if (!city) {
+    if (!prepod) {
       ctx.throw(404);
     }
-    ctx.body = city;
+    ctx.body = prepod;
   } catch (err) {
     if (err.name === 'CastError' || err.name === 'NotFoundError') {
       ctx.throw(404);
