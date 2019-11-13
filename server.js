@@ -100,13 +100,22 @@ async function getMessages(ctx) {
   const stream = new PassThrough()
   ctx.body = stream;
 
-  const mngStream = Message.find().stream()
+  const cursor = Message.find().cursor()
 
-  mngStream.on('data', (doc) => {
+  cursor
+    .on('data', (doc) => {
     stream.write(`data: ${JSON.stringify(doc)}\n\n`)
-    stream.write(`data: testtest\n\n`)
-    stream.write(`data: testtesttesttest\n\n`)
   })
+    .on('close', () => {
+      stream.write(`ended initial data\n\n`)
+    })
+
+  Message.watch()
+    .on('change', (doc) => {
+      if (doc.operationType === 'insert') {
+        stream.write(`data: ${JSON.stringify(doc.fullDocument)}\n\n`)
+      }
+    })
 }
 
 async function renderForm(ctx) {
