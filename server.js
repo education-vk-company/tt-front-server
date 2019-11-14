@@ -200,7 +200,7 @@ async function updatePrepod(ctx) {
 
 app.use(router.routes());
 
-app.listen(9000);
+app.listen(process.env.PORT || 9000)
 app.on('error', err => {
   console.error('[server error]', err);
 });
