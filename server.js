@@ -18,17 +18,19 @@ const initDB = require('./database');
 initDB();
 
 const readAndWriteFile = (file) => {
-  const reader = fs.createReadStream(file.path);
-  const stream = fs.createWriteStream(path.join(os.tmpdir(), Math.random().toString()));
-  reader.pipe(stream);
-  console.log('uploading %s -> %s', file.name, stream.path);
-  return stream;
+  if (file) {
+    const reader = fs.createReadStream(file.path);
+    const stream = fs.createWriteStream(path.join(os.tmpdir(), Math.random().toString()));
+    reader.pipe(stream);
+    console.log('uploading %s -> %s', file.name, stream.path);
+    return stream;
+  }
 }
 
 const app = new Koa();
 app.use(cors());
 
-const uploadsDir = path.resolve(__dirname, './uploads/');
+// const uploadsDir = path.resolve(__dirname, './uploads/');
 
 const pug = new Pug({
   viewPath: path.resolve(__dirname, './views'),
@@ -57,10 +59,10 @@ router.post('/upload', bodyParser({
 }), handleForm);
 
 
-router.get("/messages/:id", findMessageById);
-router.get("/messages", getMessages);
-router.get("/messages-view", renderMessages);
-router.post("/add-message", postMessage);
+router.get('/messages/:id', findMessageById);
+router.get('/messages', getMessages);
+router.get('/messages-view', renderMessages);
+router.post('/add-message', postMessage);
 
 app.use(mount('/graphql', graphqlHTTP({
   schema: schema,
@@ -91,7 +93,6 @@ async function findMessageById(ctx) {
 }
 
 async function getMessages(ctx) {
-
   ctx.req.setTimeout(Number.MAX_VALUE);
   ctx.type = 'text/event-stream; charset=utf-8';
   ctx.set('Cache-Control', 'no-cache');
@@ -150,6 +151,7 @@ async function handleForm(ctx) {
   }
 
   ctx.body = JSON.stringify(response);
+  console.log('[handleForm finished]');
   // ctx.redirect('/files');
 }
 
