@@ -62,7 +62,7 @@ router.post('/upload', bodyParser({
 router.get('/messages/:id', findMessageById);
 router.get('/messages', getMessages);
 router.get('/messages-view', renderMessages);
-router.post('/add-message', postMessage);
+router.post('/add-message', bodyParser({urlencoded: true}), postMessage);
 
 app.use(mount('/graphql', graphqlHTTP({
   schema: schema,
@@ -101,7 +101,7 @@ async function getMessages(ctx) {
   const stream = new PassThrough()
   ctx.body = stream;
 
-  const cursor = Message.find().cursor()
+  const cursor = Message.find().sort('-timestamp').limit(10).cursor()
 
   cursor
     .on('data', (doc) => {
@@ -113,9 +113,8 @@ async function getMessages(ctx) {
 
   Message.watch()
     .on('change', (doc) => {
-      if (doc.operationType === 'insert') {
-        stream.write(`data: ${JSON.stringify(doc.fullDocument)}\n\n`)
-      }
+      const data = Object.assign({}, doc.fullDocument, {operationType: doc.operationType})
+      stream.write(`data: ${JSON.stringify(data)}\n\n`)
     })
 }
 
