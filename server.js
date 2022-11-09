@@ -48,21 +48,20 @@ router.get('/', getPrepods);
 router.post('/', addPrepod);
 
 router.get('/prepods', getPrepods);
+router.get('/prepods/:id', findPrepodById);
 router.post('/prepods', addPrepod);
 
-router.get('/prepods/:id', findPrepodById);
+router.get('/messages', getMessages);
+router.get('/messages/:id', findMessageById);
+router.get('/messages-sse', getMessagesSSE);
+router.get('/messages-sse-view', renderMessages);
+router.post('/message', bodyParser({urlencoded: true}), postMessage);
 
 router.get('/files', renderForm);
 router.post('/upload', bodyParser({
   multipart: true,
   urlencoded: true
 }), handleForm);
-
-
-router.get('/messages/:id', findMessageById);
-router.get('/messages', getMessages);
-router.get('/messages-view', renderMessages);
-router.post('/add-message', bodyParser({urlencoded: true}), postMessage);
 
 app.use(mount('/graphql', graphqlHTTP({
   schema: schema,
@@ -93,6 +92,10 @@ async function findMessageById(ctx) {
 }
 
 async function getMessages(ctx) {
+  ctx.body = await Message.find()
+}
+
+async function getMessagesSSE(ctx) {
   ctx.req.setTimeout(Number.MAX_VALUE);
   ctx.type = 'text/event-stream; charset=utf-8';
   ctx.set('Cache-Control', 'no-cache');
