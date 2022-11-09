@@ -18,17 +18,19 @@ const initDB = require('./database');
 initDB();
 
 const readAndWriteFile = (file) => {
-  const reader = fs.createReadStream(file.path);
-  const stream = fs.createWriteStream(path.join(os.tmpdir(), Math.random().toString()));
-  reader.pipe(stream);
-  console.log('uploading %s -> %s', file.name, stream.path);
-  return stream;
+  if (file) {
+    const reader = fs.createReadStream(file.path);
+    const stream = fs.createWriteStream(path.join(os.tmpdir(), Math.random().toString()));
+    reader.pipe(stream);
+    console.log('uploading %s -> %s', file.name, stream.path);
+    return stream;
+  }
 }
 
 const app = new Koa();
 app.use(cors());
 
-const uploadsDir = path.resolve(__dirname, './uploads/');
+// const uploadsDir = path.resolve(__dirname, './uploads/');
 
 const pug = new Pug({
   viewPath: path.resolve(__dirname, './views'),
@@ -57,10 +59,10 @@ router.post('/upload', bodyParser({
 }), handleForm);
 
 
-router.get("/messages/:id", findMessageById);
-router.get("/messages", getMessages);
-router.get("/messages-view", renderMessages);
-router.post("/add-message", postMessage);
+router.get('/messages/:id', findMessageById);
+router.get('/messages', getMessages);
+router.get('/messages-view', renderMessages);
+router.post('/add-message', bodyParser({urlencoded: true}), postMessage);
 
 app.use(mount('/graphql', graphqlHTTP({
   schema: schema,
@@ -91,7 +93,6 @@ async function findMessageById(ctx) {
 }
 
 async function getMessages(ctx) {
-
   ctx.req.setTimeout(Number.MAX_VALUE);
   ctx.type = 'text/event-stream; charset=utf-8';
   ctx.set('Cache-Control', 'no-cache');
@@ -100,7 +101,7 @@ async function getMessages(ctx) {
   const stream = new PassThrough()
   ctx.body = stream;
 
-  const cursor = Message.find().cursor()
+  const cursor = Message.find().sort('-timestamp').limit(10).cursor()
 
   cursor
     .on('data', (doc) => {
@@ -112,9 +113,8 @@ async function getMessages(ctx) {
 
   Message.watch()
     .on('change', (doc) => {
-      if (doc.operationType === 'insert') {
-        stream.write(`data: ${JSON.stringify(doc.fullDocument)}\n\n`)
-      }
+      const data = Object.assign({}, doc.fullDocument, {operationType: doc.operationType})
+      stream.write(`data: ${JSON.stringify(data)}\n\n`)
     })
 }
 
@@ -150,6 +150,7 @@ async function handleForm(ctx) {
   }
 
   ctx.body = JSON.stringify(response);
+  console.log('[handleForm finished]');
   // ctx.redirect('/files');
 }
 
@@ -200,7 +201,7 @@ async function updatePrepod(ctx) {
 
 app.use(router.routes());
 
-app.listen(9000);
+app.listen(process.env.PORT || 9000)
 app.on('error', err => {
   console.error('[server error]', err);
 });

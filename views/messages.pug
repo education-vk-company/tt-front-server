@@ -24,13 +24,20 @@ body
         sse.onmessage = function(e) {
             const newElement = document.createElement("li");
             let html = ''
+            let opType;
             try {
+                //let data = JSON.parse(e.data)
+                //const msg = data.fullDocument ? data.fullDocument : data
                 const msg = JSON.parse(e.data)
+                opType = msg.operationType
                 html = `<p>${msg.author}</p><p>${msg.text}</p>`
             } catch {
                 html = `<p>${e.data}</p>`
+                opType = null
             }
-            newElement.innerHTML = html
+            if (!opType || opType === 'insert') {
+                newElement.innerHTML = html
+            }
             eventList.appendChild(newElement);
         };
         sse.onerror = function() {
