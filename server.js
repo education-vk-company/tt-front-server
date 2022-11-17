@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { v4: uuidv4 } = require('uuid');
 const Koa = require('koa');
 const mount = require('koa-mount');
 const graphqlHTTP = require('koa-graphql');
@@ -20,7 +21,9 @@ initDB();
 const readAndWriteFile = (file) => {
   if (file) {
     const reader = fs.createReadStream(file.path);
-    const stream = fs.createWriteStream(path.join(os.tmpdir(), Math.random().toString()));
+    const fileName = file.name.split('.');
+    const ext = fileName[fileName.length - 1];
+    const stream = fs.createWriteStream(path.join(os.tmpdir(), `${uuidv4()}.${ext}`));
     reader.pipe(stream);
     console.log('uploading %s -> %s', file.name, stream.path);
     return stream;
@@ -148,7 +151,7 @@ async function handleForm(ctx) {
   }
 
   if (audio && audio.size) {
-    readAndWriteFile(image);
+    readAndWriteFile(audio);
     response.audio = true;
   }
 

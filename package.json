@@ -21,8 +21,9 @@
     "koa-pug": "^4.0.2",
     "koa-router": "^7.4.0",
     "mongoose": "^5.7.9",
+    "pm2": "^5.2.0",
     "stream": "0.0.2",
-    "pm2": "^5.2.0"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "now": "^16.5.2"
