@@ -3,16 +3,21 @@ html
       title File uploads
    body
       form(action = "/upload" method = "POST" enctype = "multipart/form-data")
-         div
-            input(type = "text" name = "name" placeholder = "Name")
+         fieldset
+            legend Upload files
+            fieldset
+               legend Image
+               //- div
+               //-    input(type = "text" name = "name" placeholder = "Name")
+               div
+                  p
+                  input(type = "file" name = "image")
 
-         div
-            p image
-            input(type = "file" name = "image")
+            fieldset
+               legend Audio
+               div
+                  p
+                  input(type = "file" name = "audio")
 
-         div
-            p audio
-            input(type = "file" name = "audio")
-
-         div
-            input(type = "submit")
+            div
+               input(type = "submit")

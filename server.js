@@ -19,6 +19,8 @@ const Prepod = require('./models/prepod');
 const initDB = require('./database');
 initDB();
 
+const hostname = os.hostname();
+
 const readAndWriteFile = (file) => {
   if (file) {
     const reader = fs.createReadStream(file.path);
@@ -28,7 +30,7 @@ const readAndWriteFile = (file) => {
     const stream = fs.createWriteStream(path.join(os.tmpdir(), newFileName));
     reader.pipe(stream);
     console.log('uploading %s -> %s', file.name, stream.path);
-    return [stream, `/static/${newFileName}`];
+    return [stream, `${hostname}/static/${newFileName}`];
   }
 }
 
@@ -151,13 +153,13 @@ async function handleForm(ctx) {
   if (image && image.size) {
     const [, src] = readAndWriteFile(image);
     response.image = true;
-    response.src = src;
+    response.imgSrc = src;
   }
 
   if (audio && audio.size) {
     const [, src] = readAndWriteFile(audio);
     response.audio = true;
-    response.src = src;
+    response.audioSrc = src;
   }
 
   ctx.body = JSON.stringify(response);
