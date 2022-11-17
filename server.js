@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { v4: uuidv4 } = require('uuid');
+const serveStatic = require('koa-static')
 const Koa = require('koa');
 const mount = require('koa-mount');
 const graphqlHTTP = require('koa-graphql');
@@ -23,15 +24,17 @@ const readAndWriteFile = (file) => {
     const reader = fs.createReadStream(file.path);
     const fileName = file.name.split('.');
     const ext = fileName[fileName.length - 1];
-    const stream = fs.createWriteStream(path.join(os.tmpdir(), `${uuidv4()}.${ext}`));
+    const newFileName = `${uuidv4()}.${ext}`;
+    const stream = fs.createWriteStream(path.join(os.tmpdir(), newFileName));
     reader.pipe(stream);
     console.log('uploading %s -> %s', file.name, stream.path);
-    return stream;
+    return [stream, `/static/${newFileName}`];
   }
 }
 
 const app = new Koa();
 app.use(cors());
+app.use(mount('/static', serveStatic(os.tmpdir(), {})));
 
 // const uploadsDir = path.resolve(__dirname, './uploads/');
 
@@ -146,13 +149,15 @@ async function handleForm(ctx) {
   };
 
   if (image && image.size) {
-    readAndWriteFile(image);
+    const [, src] = readAndWriteFile(image);
     response.image = true;
+    response.src = src;
   }
 
   if (audio && audio.size) {
-    readAndWriteFile(audio);
+    const [, src] = readAndWriteFile(audio);
     response.audio = true;
+    response.src = src;
   }
 
   ctx.body = JSON.stringify(response);
