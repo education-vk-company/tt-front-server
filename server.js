@@ -19,8 +19,6 @@ const Prepod = require('./models/prepod');
 const initDB = require('./database');
 initDB();
 
-const hostname = os.hostname();
-
 const readAndWriteFile = (file) => {
   if (file) {
     const reader = fs.createReadStream(file.path);
@@ -30,7 +28,7 @@ const readAndWriteFile = (file) => {
     const stream = fs.createWriteStream(path.join(os.tmpdir(), newFileName));
     reader.pipe(stream);
     console.log('uploading %s -> %s', file.name, stream.path);
-    return [stream, `${hostname}/static/${newFileName}`];
+    return [stream, `https://tt-front.vercel.app/static/${newFileName}`];
   }
 }
 
