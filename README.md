@@ -20,8 +20,6 @@ npm start
 * `GET` `/messages-sse` – Точка входа для SSE
 * `GET` `/messages-sse-view` – Страница с примером реализации SSE (работает только локально)
 * `POST` `/message` – Отправить сообщение. Параметры: `{author: string, text: string}`
-* `GET` `/files` – Страница с примером реализации отправки формы с файлами
-* `POST` `/upload` – Отправить файл в `FormData`. Параметры: `image: File, audio: File`
 
 Пример:
 ```
@@ -30,6 +28,8 @@ npm start
   text: "Hello, chat",
 }
 ```
+* `GET` `/files` – Страница с примером реализации отправки формы с файлами
+* `POST` `/upload` – Отправить файл в `FormData`. Параметры: `image: File, audio: File`
 
 # Деплой
 
